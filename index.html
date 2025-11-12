@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>Online Grocery Store</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+
+    header {
+      background: #2a9d8f;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    h1 { margin: 0; }
+
+    main {
+      margin-top: 100px;
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 30px;
+      width: 70%;
+    }
+
+    .product {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 200px;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .product img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .product h3 { margin: 10px 0 5px; font-size: 18px; }
+    .product p { color: #555; font-size: 14px; }
+    .price { font-weight: bold; color: #2a9d8f; margin: 10px 0; }
+
+    .btn {
+      background: #e76f51;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover { background: #d65a3a; }
+
+    .cart {
+      width: 30%;
+      background: white;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      position: sticky;
+      top: 100px;
+      height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+
+    .cart h2 {
+      color: #2a9d8f;
+      border-bottom: 2px solid #2a9d8f;
+      padding-bottom: 10px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .cart-item button {
+      background: #dc3545;
+      border: none;
+      color: white;
+      padding: 5px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .cart-item button:hover {
+      background: #c82333;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 15px;
+      text-align: right;
+      color: #264653;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #2a9d8f;
+      color: white;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FreshCart Grocery Store</h1>
+    <p>Your one-stop shop for daily essentials</p>
+  </header>
+
+  <main>
+    <section class="products" id="product-list">
+      <!-- Products will be displayed here -->
+    </section>
+
+    <aside class="cart" id="cart">
+      <h2>Your Cart</h2>
+      <div id="cart-items"></div>
+      <div class="total" id="cart-total">Total: ₹0</div>
+    </aside>
+  </main>
+
+  <footer>
+    © 2025 FreshCart Grocery Store — All Rights Reserved
+  </footer>
+
+  <script>
+    const products = [
+      { name: "Apples", price: 120, img: "assests/Apples.jpg" },
+      { name: "Bananas", price: 60, img: "assests/Banana.jpg" },
+      { name: "Tomatoes", price: 80, img: "assests/Tomatoes.jpg" },
+      { name: "Potatoes", price: 40, img: "assests/Potatoes.jpg" },
+      { name: "Carrots", price: 70, img: "assests/Carrots.jpg" },
+      { name: "Milk", price: 50, img: "assests/Milk.jpg" },
+      { name: "Bread", price: 35, img: "assests/Bread.jpg" },
+      { name: "Eggs", price: 70, img: "assests/Eggs.jpg" },
+      { name: "Basmati Rice", price: 1200, img: "assests/Rice.jpg" },
+      { name: "Sunflower Oil", price: 180, img: "assests/SunFlower Oil.jpg" },
+      { name: "Salt", price: 20, img: "assests/Salt.jpg" },
+      { name: "Sugar", price: 45, img: "assests/Sugar.jpg" },
+      { name: "Orange Juice", price: 90, img: "assests/Orange juice .jpg" },
+      { name: "Biscuits", price: 30, img: "assests/Biscuts.jpg" },
+      { name: "Bath Soap", price: 25, img: "assests/Soaps.jpg" }
+    ];
+
+    const cart = [];
+
+    function renderProducts() {
+      const container = document.getElementById("product-list");
+      container.innerHTML = "";
+      products.forEach((p, index) => {
+        container.innerHTML += `
+          <div class="product">
+            <img src="${p.img}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>High-quality daily essential.</p>
+            <div class="price">₹${p.price}</div>
+            <button class="btn" onclick="addToCart(${index})">Add to Cart</button>
+          </div>`;
+      });
+    }
+
+    function addToCart(index) {
+      const item = products[index];
+      const existing = cart.find(p => p.name === item.name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ ...item, qty: 1 });
+      }
+      renderCart();
+    }
+
+    function removeFromCart(name) {
+      const i = cart.findIndex(p => p.name === name);
+      if (i !== -1) {
+        cart[i].qty--;
+        if (cart[i].qty <= 0) cart.splice(i, 1);
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById("cart-items");
+      const totalElement = document.getElementById("cart-total");
+      container.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.qty;
+        container.innerHTML += `
+          <div class="cart-item">
+            <span>${item.name} (x${item.qty})</span>
+            <button onclick="removeFromCart('${item.name}')">Remove</button>
+          </div>`;
+      });
+      totalElement.innerText = "Total: ₹" + total;
+    }
+
+    renderProducts();
+  </script>
+
+</body>
+</html>
